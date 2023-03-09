@@ -97,3 +97,54 @@ Another possible reason to use trait objects is to reduce the total amount of co
 However, generics will always be your first choice. If you can use generics, you should. Only use trait objects when you need to.
 
 Generic functions are more flexible, in some cases, you cannot use trait object at all, you can have generic function with multiple trait bounds, such as Debug + Hash + Eq + Write, but you can't do this with trait object.
+
+When you are using trait objects, keep one thing in mind: they are intended for the simplest kinds of polymorphism, almost the same as C++ abstract classes. You lose the compile time type information when Rust needs to type-check your program.
+
+### Implementing Traits
+
+When implementing a trait, you must implement all of the methods in the trait. otherwise, the compiler will throw an error.
+
+When some method in the trait objects use the same boilerplate code, you can use default implementation to mitigate this.
+
+Probably most awesome feature of Rust is that you can implement a trait for any type, even if you don't own the type. This is called a blanket implementation. This is useful when you want to implement a trait for a type that is defined in another crate.
+
+In some sense this is a great example of favoring composition over inheritance. 
+
+But there is a strict rule in Rust called **orphan rule**. You can only implement a trait for a type if either the trait or the type is local to your crate. This is to prevent name collisions.
+
+
+#### Subtaits
+
+we can declare that a trait is an extension of another trait.
+
+when you implement a trait which is a subtrait of another trait, you are obligated to implement all of the methods in the parent trait.
+
+subtraits resemble subinterfaces in Java or C#, but they are not the same. In Java, a class can only implement one interface, but in Rust, a type can implement multiple traits.
+
+#### Type-Associated Functions
+
+In most object-oriented language, interfaces can't have static method or constructors. but traits can include type-associated functions, which are similar to static methods in Java or C#.
+
+There is one catch though, you can't call a type-associated function on a trait object. if you want to use &dyn Trait, you must change the trait, adding bound where Self: Sized for the type-associated function.
+
+#### Associated Types
+
+Associated types are similar to type parameters, but they are associated with a trait instead of a generic type or function. They are used to define a placeholder type that the trait method will use.
+
+the Iterator trait has an associated type called Item. This type is used as the return type of the next method. 
+
+```rust
+
+pub trait Iterator {
+    type Item;
+    fn next(&mut self) -> Option<Self::Item>;
+}
+```
+
+Notice the usage of Self::Item. This syntax is called the fully qualified syntax for associated types. Each type that implements Iterator must specify what type of item it produces.
+
+
+
+
+
+
